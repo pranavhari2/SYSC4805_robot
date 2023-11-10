@@ -1,3 +1,17 @@
+/**
+ * This code is for the controlled movement of the robot.
+ * We will be using this as the base as the movement for the robot
+ * some of the line follower code is commented out as we are not using it right now
+ * 
+ * @file Controlled_Movement.ino
+ * @brief Controlled movement of the robot
+ * @author Pranav K Hari, 101144482
+ * @author Christpher Semaan, 101140813
+ * @author Sagar Syal, 101150341
+ * @version 1.0
+ * 
+*/
+
 #include "CytronMotorDriver.h"
 
 //Define statements for the motor driver
