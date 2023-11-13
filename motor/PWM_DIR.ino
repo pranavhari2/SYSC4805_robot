@@ -29,10 +29,9 @@
 
 
 // Configure the motor driver.
-CytronMD motor(PWM_DIR, 2, 9);  // PWM = Pin 2, DIR = Pin 9   //works
-CytronMD motor3(PWM_DIR, 5, 6);  // PWM = Pin 5, DIR = Pin 6    // works
-
+CytronMD motor(PWM_DIR, 2, 9);  // PWM = Pin 2, DIR = Pin 9  
 CytronMD motor2(PWM_DIR, 4, 3);  // PWM = Pin 4, DIR = Pin 3
+CytronMD motor3(PWM_DIR, 5, 6);  // PWM = Pin 5, DIR = Pin 6   
 CytronMD motor4(PWM_DIR, 8, 7);  // PWM = Pin 8, DIR = Pin 7
 
 
@@ -69,22 +68,20 @@ void run_motor(CytronMD motor, int number){
   Serial.print("Stop");
   Serial.println();
 }
+
 // The setup routine runs once when you press reset.
 void setup() {
   Serial.begin(9600);
 }
 
-
-
 // The loop routine runs over and over again forever.
 void loop() {
-  //run_motor(motor);
   int number = 1;
   run_motor(motor, number);
   number = 2;
   run_motor(motor2, number);
-  number =3;
-  run_motor(motor3,number );
-   number =4;
+  number = 3;
+  run_motor(motor3, number);
+  number = 4;
   run_motor(motor4, number);
 }
