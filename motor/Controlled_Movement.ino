@@ -13,7 +13,7 @@
 */
 
 #include "CytronMotorDriver.h"
-#include <"Timer1One.h">
+#include "Timer1One.h"
 
 //Define statements for the motor driver
 //Todo: Change the pin numbers 
@@ -96,14 +96,14 @@ void sensorPoll()
   int right = digitalRead(RightLineFollower);
 
   //Todo: Change the if statements to fit the line follower better
-  if (left < whitelevl && middle < whitelvl && right > blacklvl) 
+  if ((left < whitelevl) && (middle < whitelvl) && (right > blacklvl)) 
   {
     run_lft();
   }
-  else if (left > blacklvl && middle < whitelvl && right > blacklvl) {
+  else if ((left > blacklvl) && (middle < whitelvl) && (right > blacklvl)) {
     run_rgt();
   }
-  else if (left > blacklvl && middle > blacklvl && right > blacklvl) {
+  else if ((left > blacklvl) && (middle > blacklvl) && (right > blacklvl)) {
     run_bwd();
   }
   else {
