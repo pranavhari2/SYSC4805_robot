@@ -13,6 +13,7 @@
 */
 
 #include "CytronMotorDriver.h"
+#include <"Timer1One.h">
 
 //Define statements for the motor driver
 //Todo: Change the pin numbers 
@@ -81,49 +82,58 @@ void run_stop()
   motor4.setSpeed(0);
 }
 
-
-void setup() {
+void setup() 
+{
   Serial.begin(9600);
+  Timer1.initialize(50000);
+  Time.attachInterrupt(sensorPoll);
 }
 
-void loop() {
+void sensorPoll() 
+{
   int left = digitalRead(LeftLineFollower);
   int middle = digitalRead(MiddleLineFollower);
   int right = digitalRead(RightLineFollower);
- 
+
   //Todo: Change the if statements to fit the line follower better
-  // if (left < whitelevl && middle < whitelvl && right > blacklvl) 
-  // {
-  //   run_lft();
-  // }
-  // else if (left > blacklvl && middle < whitelvl && right > blacklvl) {
-  //   run_rgt();
-  // }
-  // else if (left > blacklvl && middle > blacklvl && right > blacklvl) {
-  //   run_bwd();
-  // }
-  // else {
-  //   run_fwd();
-  // }
+  if (left < whitelevl && middle < whitelvl && right > blacklvl) 
+  {
+    run_lft();
+  }
+  else if (left > blacklvl && middle < whitelvl && right > blacklvl) {
+    run_rgt();
+  }
+  else if (left > blacklvl && middle > blacklvl && right > blacklvl) {
+    run_bwd();
+  }
+  else {
+    run_fwd();
+  }
+}
+
+void loop() {
+  // int left = digitalRead(LeftLineFollower);
+  // int middle = digitalRead(MiddleLineFollower);
+  // int right = digitalRead(RightLineFollower);
 
   //WASD control
-  if (Serial.available() > 0) {
-    char data = Serial.read();
-    if (data == 'w') {
-      run_fwd();
-    }
-    else if (data == 's') {
-      run_bwd();
-    }
-    else if (data == 'a') {
-      run_lft();
-    }
-    else if (data == 'd') {
-      run_rgt();
-    }
-    else if (data == 'x') {
-      run_stop();
-    }
-  }
+  // if (Serial.available() > 0) {
+  //   char data = Serial.read();
+  //   if (data == 'w') {
+  //     run_fwd();
+  //   }
+  //   else if (data == 's') {
+  //     run_bwd();
+  //   }
+  //   else if (data == 'a') {
+  //     run_lft();
+  //   }
+  //   else if (data == 'd') {
+  //     run_rgt();
+  //   }
+  //   else if (data == 'x') {
+  //     run_stop();
+  //   }
+  // }
   
 }
