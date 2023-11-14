@@ -13,7 +13,7 @@
 */
 
 #include "CytronMotorDriver.h"
-#include "Timer1One.h"
+#include "DueTimer.h"
 
 //Define statements for the motor driver
 //Todo: Change the pin numbers 
@@ -34,36 +34,16 @@ const int whitelvl = 600;
 const int blacklvl = 850;
 
 //Func for the movement forward 
-void run_fwd()
-{
-  Serial.println("Forward");
-}
+void run_fwd(){Serial.println("Forward");}
 
 //Func for the movement backward
-void run_bwd()
-{
-  Serial.println("Backward");
-}
+void run_bwd(){Serial.println("Backward");}
 
 //Func for the movement left
-void run_lft()
-{
-  Serial.println("Left");
-}
+void run_lft(){Serial.println("Left");}
 
 //Func for the movement right
-void run_rgt()
-{
-  Serial.println("Right");
-}
-
-
-void setup() 
-{
-  Serial.begin(9600);
-  Timer1.initialize(50000);
-  Time.attachInterrupt(sensorPoll);
-}
+void run_rgt(){Serial.println("Right");}
 
 void sensorPoll() 
 {
@@ -72,7 +52,7 @@ void sensorPoll()
   int right = digitalRead(RightLineFollower);
 
   //Todo: Change the if statements to fit the line follower better
-  if ((left < whitelevl) && (middle < whitelvl) && (right > blacklvl)) 
+  if ((left < whitelvl) && (middle < whitelvl) && (right > blacklvl)) 
   {
     run_lft();
   }
@@ -86,6 +66,14 @@ void sensorPoll()
     run_fwd();
   }
 }
+
+void setup() 
+{
+  Serial.begin(9600);
+  Timer.attachInterrupt(sensorPoll).setFrequency(20).start();
+}
+
+
 
 void loop() {
   
