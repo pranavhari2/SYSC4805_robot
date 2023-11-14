@@ -17,10 +17,11 @@
 
 //Define statements for the motor driver
 //Todo: Change the pin numbers 
-#define LeftLineFollower 32 
-#define MiddleLineFollower 33
-#define RightLineFollower 34 
+#define MiddleLineFollower 30
+#define RightLineFollower 32
+#define LeftLineFollower 34
 
+ 
 //Define statements for the motor driver
 CytronMD motor(PWM_DIR, 2, 9);  
 CytronMD motor3(PWM_DIR, 5, 6); 
@@ -47,9 +48,34 @@ void run_rgt(){Serial.println("Right");}
 
 void sensorPoll() 
 {
+
+
+}
+void setup() 
+{
+  Serial.begin(9600);
+  Timer.attachInterrupt(sensorPoll).setFrequency(20).start();
+
+  pinMode(LeftLineFollower, INPUT);
+  pinMode(MiddleLineFollower, INPUT);
+  pinMode(RightLineFollower, INPUT);
+}
+
+void loop() {
   int left = digitalRead(LeftLineFollower);
   int middle = digitalRead(MiddleLineFollower);
   int right = digitalRead(RightLineFollower);
+
+  Serial.print("Left:");
+  Serial.print(left);
+  Serial.println();
+  Serial.print("Middle:");
+  Serial.print(middle);
+  Serial.println();
+  Serial.print("Right:");
+  Serial.print(right);
+  Serial.println();
+  delay(500);
 
   //Todo: Change the if statements to fit the line follower better
   if ((left < whitelvl) && (middle < whitelvl) && (right > blacklvl)) 
@@ -63,18 +89,6 @@ void sensorPoll()
     run_bwd();
   }
   else {
-    run_fwd();
+    //run_fwd();
   }
-}
-
-void setup() 
-{
-  Serial.begin(9600);
-  Timer.attachInterrupt(sensorPoll).setFrequency(20).start();
-}
-
-
-
-void loop() {
-  
 }
