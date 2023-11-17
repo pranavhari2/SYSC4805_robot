@@ -14,6 +14,24 @@
 
 #include "CytronMotorDriver.h"
 #include "Timer1One.h"
+#define WDT_KEY (0xA5)
+
+void watchdogSetup(void) {
+  /*** watchdogDisable (); ***/
+}
+
+void setup()
+{
+  // Enable watchdog.
+  WDT->WDT_MR = WDT_MR_WDD(0xFFF)
+                | WDT_MR_WDRPROC
+                | WDT_MR_WDRSTEN
+                | WDT_MR_WDV(256 * 2);
+
+  Serial.begin(250000);
+  uint32_t status = (RSTC->RSTC_SR & RSTC_SR_RSTTYP_Msk) >> 8;
+  Serial.print("RSTTYP = 0b"); Serial.println(status, BIN); 
+}
 
 //Define statements for the motor driver
 //Todo: Change the pin numbers 
@@ -136,4 +154,18 @@ void loop() {
   //   }
   // }
   
+}
+void loop()
+{
+  WDT->WDT_CR = WDT_CR_KEY(WDT_KEY)  // Restart timer
+                | = WDT_CR_WDRSTT;
+
+  Serial.println("Restart watchdog");
+  delay(500);
+
+  while (true)
+  {
+    Serial.println("Deadlock!");
+    delay(500);
+  }
 }
