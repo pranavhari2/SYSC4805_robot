@@ -53,7 +53,6 @@ void run_bwd()
   Serial.println("Backward");
 }
 
-//Func for the movement left
 void run_lft()
 {
   motor.setSpeed(-255);  
@@ -63,7 +62,6 @@ void run_lft()
   Serial.println("Left");
 }
 
-//Func for the movement right
 void run_rgt()
 {
   motor.setSpeed(255);  
@@ -73,7 +71,6 @@ void run_rgt()
   Serial.println("Right");
 }
 
-//Func for the movement stop
 void run_stop()
 {
   motor.setSpeed(0);  

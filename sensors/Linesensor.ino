@@ -47,24 +47,31 @@ void run_rgt(){Serial.println("Right");}
 
 void sensorPoll() 
 {
-  int left = digitalRead(LeftLineFollower);
-  int middle = digitalRead(MiddleLineFollower);
-  int right = digitalRead(RightLineFollower);
+    int left = digitalRead(LeftLineFollower);
+    int middle = digitalRead(MiddleLineFollower);
+    int right = digitalRead(RightLineFollower);
 
-  //Todo: Change the if statements to fit the line follower better
-  if ((left < whitelvl) && (middle < whitelvl) && (right > blacklvl)) 
-  {
-    run_lft();
-  }
-  else if ((left > blacklvl) && (middle < whitelvl) && (right > blacklvl)) {
-    run_rgt();
-  }
-  else if ((left > blacklvl) && (middle > blacklvl) && (right > blacklvl)) {
-    run_bwd();
-  }
-  else {
-    run_fwd();
-  }
+    Serial.print("Left: ");
+    Serial.print(left);
+    Serial.print(" Middle: ");
+    Serial.print(middle);
+    Serial.print(" Right: ");
+    Serial.println(right);
+
+    //Todo: Change the if statements to fit the line follower better
+    if ((left < whitelvl) && (middle < whitelvl) && (right > blacklvl)) 
+    {
+        run_lft();
+    }
+    else if ((left > blacklvl) && (middle < whitelvl) && (right > blacklvl)) {
+        run_rgt();
+    }
+    else if ((left > blacklvl) && (middle > blacklvl) && (right > blacklvl)) {
+        run_bwd();
+    }
+    else {
+        run_fwd();
+    }
 }
 
 void setup() 
