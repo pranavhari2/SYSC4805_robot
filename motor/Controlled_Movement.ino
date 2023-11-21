@@ -135,17 +135,19 @@ void loop() {
 }
 void loop()
 {
-  WDT->WDT_CR = WDT_CR_KEY(WDT_KEY)  // Restart timer
-                | = WDT_CR_WDRSTT;
+  // WDT->WDT_CR = WDT_CR_KEY(WDT_KEY)  // Restart timer
+  //               | = WDT_CR_WDRSTT;
 
-  Serial.println("Restart watchdog");
-  delay(500);
+  // Serial.println("Restart watchdog");
+  // delay(500);
 
-  while (true)
-  {
-    Serial.println("Deadlock!");
-    delay(500);
-  }
+  // while (true)
+  // {
+  //   Serial.println("Deadlock!");
+  //   delay(500);
+  // }
+
+  run_lft();
 
   // int left = digitalRead(LeftLineFollower);
   // int middle = digitalRead(MiddleLineFollower);
