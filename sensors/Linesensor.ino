@@ -17,10 +17,11 @@
 
 //Define statements for the motor driver
 //Todo: Change the pin numbers 
-#define LeftLineFollower 32 
-#define MiddleLineFollower 33
-#define RightLineFollower 34 
+#define MiddleLineFollower 30
+#define RightLineFollower 32
+#define LeftLineFollower 34
 
+ 
 //Define statements for the motor driver
 CytronMD motor(PWM_DIR, 2, 9);  
 CytronMD motor3(PWM_DIR, 5, 6); 
@@ -72,16 +73,4 @@ void sensorPoll()
     else {
         run_fwd();
     }
-}
-
-void setup() 
-{
-  Serial.begin(9600);
-  Timer.attachInterrupt(sensorPoll).setFrequency(20).start();
-}
-
-
-
-void loop() {
-  
 }
