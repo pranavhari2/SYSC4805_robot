@@ -1,12 +1,11 @@
 
+#include "Simpletimer.h"
 #include "CytronMotorDriver.h"
-#include "DueTimer.h"
-
-//Define statements for the motor driver
-//Todo: Change the pin numbers 
-#define MiddleLineFollower 30
-#define RightLineFollower 32
-#define LeftLineFollower 34
+// Define statements for the motor driver
+// Todo: Change the pin numbers 
+#define MiddleLineFollower A7
+#define RightLineFollower A6
+#define LeftLineFollower A5
 
 //Define statements for the ultrasonic sensor
 #define trigPinRight 10
@@ -15,17 +14,13 @@
 #define trigPinLeft 12
 #define echoPinLeft 11
 
-//Define statements for the motor driver
-CytronMD motor(PWM_DIR, 2, 9);  
+CytronMD motor(PWM_DIR, 2, 9);
 CytronMD motor3(PWM_DIR, 5, 6); 
-
 CytronMD motor2(PWM_DIR, 4, 3);
 CytronMD motor4(PWM_DIR, 8, 7);
 
-
-//Define statements for the line follower
-const int whitelvl = 0;
-const int blacklvl = 1;
+// Define a timer object 
+Simpletimer timer{};
 
 long duration;
 int distance = 0;
@@ -77,29 +72,38 @@ void run_stop()
   motor4.setSpeed(0);
 }
 
-void linesensorPoll() 
-{
-    int left = digitalRead(LeftLineFollower);
-    int middle = digitalRead(MiddleLineFollower);
-    int right = digitalRead(RightLineFollower);
 
-    if ((left == blacklvl) && (middle == blacklvl) || (right == blacklvl) && (middle == blacklvl))
-    {
-        Serial.println("Black line detected");
-        Serial.println("LEFT: " + left);
-        Serial.println("MIDDLE: " + middle);
-        Serial.println("RIGHT: " + right);
-        //run_bwd();
-    }
-    else 
-    {
-        Serial.println("No Black line detected");
-        Serial.println("LEFT: " + left);
-        Serial.println("MIDDLE: " + middle);
-        Serial.println("RIGHT: " + right);
-        //run_fwd();
-    }
+void mock_runbwd(){
+  Serial.println("Backward");
 }
+
+void mock_runfwd(){
+  Serial.println("Forward");
+}
+
+// void linesensorPoll() 
+// {
+//     int left = digitalRead(LeftLineFollower);
+//     int middle = digitalRead(MiddleLineFollower);
+//     int right = digitalRead(RightLineFollower);
+
+//     if ((left == blacklvl) && (middle == blacklvl) || (right == blacklvl) && (middle == blacklvl))
+//     {
+//         Serial.println("Black line detected");
+//         Serial.println("LEFT: " + left);
+//         Serial.println("MIDDLE: " + middle);
+//         Serial.println("RIGHT: " + right);
+//         //run_bwd();
+//     }
+//     else 
+//     {
+//         Serial.println("No Black line detected");
+//         Serial.println("LEFT: " + left);
+//         Serial.println("MIDDLE: " + middle);
+//         Serial.println("RIGHT: " + right);
+//         //run_fwd();
+//     }
+// }
 
 void ultrasonicSensorPoll(int trigPin, int echoPin, bool turnLeft) 
 {
@@ -145,72 +149,51 @@ void ultrasonicSensorPollRight()
   ultrasonicSensorPoll(trigPinRight, echoPinRight, true);
 }
 
-void setup() 
-{
+// 
+void checkBlackLine() {
+    int middleSensorValue = analogRead(MiddleLineFollower);
+    int rightSensorValue = analogRead(RightLineFollower);
+    int leftSensorValue = analogRead(LeftLineFollower);
+    //blackLineDetected = (middleSensorValue > 1500); // adjust the threshold as needed
 
-  pinMode(LeftLineFollower, INPUT);
-  pinMode(MiddleLineFollower, INPUT);
-  pinMode(RightLineFollower, INPUT);
+     // Print out the sensor values
+    Serial.print("Middle sensor value: ");
+    Serial.println(middleSensorValue);
+    Serial.print("Right sensor value: ");
+    Serial.println(rightSensorValue);
+    Serial.print("Left sensor value: ");
+    Serial.println(leftSensorValue);
 
-  pinMode(trigPinLeft, OUTPUT);
-  pinMode(echoPinLeft, INPUT);
-  pinMode(trigPinRight, OUTPUT);
-  pinMode(echoPinRight, INPUT);
-
-  Serial.begin(38400);
-  
-  //Timer1.attachInterrupt(ultrasonicSensorPollLeft).start(); 
-  //Timer2.attachInterrupt(ultrasonicSensorPollRight).start(); 
-}         
-
-void loop() {
-    // delay(2000);
-    // Timer.start();
-
-    // delay(2000);
-    // Timer.stop();
-
-    Timer.attachInterrupt(linesensorPoll).setFrequency(50).start();
-    delay(1000);
-    Timer.stop();
-
-    // delay(500);
-    // Timer1.start();
-
-    // delay(500);
-    // Timer1.stop();
-
-    // delay(500);
-    // Timer2.start();
-
-    // delay(500);
-    // Timer2.stop();
+    if (middleSensorValue > 890 || leftSensorValue > 890 || rightSensorValue > 890) {
+        Serial.println("BLACK LINE=========================================================");
+        run_bwd();
+        delay(1000);
+        run_lft();
+        delay(1000);
+        run_stop();
+        Serial.println("Black line detected");
+    } else {
+        run_fwd();
+        Serial.println("No black line detected");
+    }
 }
 
-// void firstHandler(){
-//     Serial.println("[-  ] First Handler!");
-// }
 
-// void secondHandler(){
-//     Serial.println("[ - ] Second Handler!");
-// }
+void setup() {
 
-// void thirdHandler(){
-//     Serial.println("[  -] Third Handler!");
-// }
+    pinMode(MiddleLineFollower, INPUT);
+    pinMode(RightLineFollower, INPUT);
+    pinMode(LeftLineFollower, INPUT);
+    Serial.begin(9600);
+    timer.register_callback(checkBlackLine);
 
-// void setup(){
-//     Serial.begin(9600);
+    pinMode(trigPinLeft, OUTPUT);
+    pinMode(echoPinLeft, INPUT);
+    pinMode(trigPinRight, OUTPUT);
+    pinMode(echoPinRight, INPUT);
+}
 
-//     Timer3.attachInterrupt(firstHandler).start(500000); // Every 500ms
-//     Timer4.attachInterrupt(secondHandler).setFrequency(1).start();
-//     Timer5.attachInterrupt(thirdHandler).setFrequency(10);
-// }
 
-// void loop(){
-//     delay(2000);
-//     Timer5.start();
-
-//     delay(2000);
-//     Timer5.stop();
-// }
+void loop() {
+    timer.run(250);
+}
