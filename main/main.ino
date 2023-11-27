@@ -1,71 +1,68 @@
-
+#include "Simpletimer.h"
 #include "CytronMotorDriver.h"
-#include "DueTimer.h"
+// Define statements for the motor driver
+// Todo: Change the pin numbers 
+#define MiddleLineFollower A7
+#define RightLineFollower A6
+#define LeftLineFollower A5
 
-//Define statements for the motor driver
-//Todo: Change the pin numbers 
-#define LeftLineFollower 32 
-#define MiddleLineFollower 33
-#define RightLineFollower 34 
-
-//Define statements for the ultrasonic sensor
 #define trigPinRight 10
 #define echoPinRight 13
+#define trigPinLeft 12
+#define echoPinLeft 11
 
-#define trigPinLeft 11
-#define echoPinLeft 12
-
-//Define statements for the motor driver
-CytronMD motor(PWM_DIR, 2, 9);  
+CytronMD motor(PWM_DIR, 2, 9);
 CytronMD motor3(PWM_DIR, 5, 6); 
-
 CytronMD motor2(PWM_DIR, 4, 3);
 CytronMD motor4(PWM_DIR, 8, 7);
 
-//Define statements for the line follower
-const int whitelvl = 0;
-const int blacklvl = 1;
+Simpletimer timer{};
+Simpletimer timer2{};
+Simpletimer timer3{};
 
-long duration;
-int distance;
+void setup() {
 
-//Func for the movement forward 
-void run_fwd()
-{
-  motor.setSpeed(255);  
-  motor2.setSpeed(255);  
-  motor3.setSpeed(255);  
-  motor4.setSpeed(255);  
-  Serial.println("Forward");
+  pinMode(MiddleLineFollower, INPUT);
+  pinMode(RightLineFollower, INPUT);
+  pinMode(LeftLineFollower, INPUT);
+
+  pinMode(trigPinLeft, OUTPUT);
+  pinMode(echoPinLeft, INPUT);
+  pinMode(trigPinRight, OUTPUT);
+  pinMode(echoPinRight, INPUT);
+  Serial.begin(74880);
+
+  timer.register_callback(checkBlackLine);
+  timer2.register_callback([]() { checkObj(trigPinLeft, echoPinLeft, false); });
+  timer3.register_callback([]() { checkObj(trigPinRight, echoPinRight, true); });
 }
 
-//Func for the movement backward
-void run_bwd(){
-  motor.setSpeed(-255);  
-  motor2.setSpeed(-255);  
-  motor3.setSpeed(-255);  
-  motor4.setSpeed(-255);
+
+
+void mock_runbwd(){
   Serial.println("Backward");
 }
 
-//Func for the movement left
-void run_lft()
-{
-  motor.setSpeed(-255);  
-  motor2.setSpeed(-255);  
-  motor3.setSpeed(255);  
-  motor4.setSpeed(255);
-  Serial.println("Left");
+void mock_runfwd(){
+  Serial.println("Forward");
 }
 
-//Func for the movement right
-void run_rgt()
+
+void run_fwd()
 {
-  motor.setSpeed(255);  
-  motor2.setSpeed(255);  
-  motor3.setSpeed(-255);  
-  motor4.setSpeed(-255);
-  Serial.println("Right");
+  motor.setSpeed(128);  
+  motor2.setSpeed(128);  
+  motor3.setSpeed(128);  
+  motor4.setSpeed(128);  
+  Serial.println("Forward");
+}
+
+void run_bwd(){
+  motor.setSpeed(-128);  
+  motor2.setSpeed(-128);  
+  motor3.setSpeed(-128);  
+  motor4.setSpeed(-128);
+  Serial.println("Backward");
 }
 
 void run_stop()
@@ -76,32 +73,52 @@ void run_stop()
   motor4.setSpeed(0);
 }
 
-void linesensorPoll() 
+void run_lft()
 {
-    int left = digitalRead(LeftLineFollower);
-    int middle = digitalRead(MiddleLineFollower);
-    int right = digitalRead(RightLineFollower);
+  motor.setSpeed(-128);  
+  motor2.setSpeed(-128);  
+  motor3.setSpeed(128);  
+  motor4.setSpeed(128);
+  Serial.println("Left\n");
+}
+void run_rgt()
+{
+  motor.setSpeed(128);  
+  motor2.setSpeed(128);  
+  motor3.setSpeed(-128);  
+  motor4.setSpeed(-128);
+  Serial.println("Right\n");
+}
 
-    //Todo: Change the if statements to fit the line follower better
-    if ((left == whitelvl) && (middle < whitelvl) && (right > blacklvl)) 
-    {
-        run_lft();
-    }
-    else if ((left > blacklvl) && (middle < whitelvl) && (right > blacklvl)) 
-    {
-        run_rgt();
-    }
-    else if ((left > blacklvl) && (middle > blacklvl) && (right > blacklvl)) 
-    {
+
+void checkBlackLine() {
+    int middleSensorValue = analogRead(MiddleLineFollower);
+    int rightSensorValue = analogRead(RightLineFollower);
+    int leftSensorValue = analogRead(LeftLineFollower);
+    //blackLineDetected = (middleSensorValue > 1500); // adjust the threshold as needed
+
+     // Print out the sensor values
+    Serial.print("Middle sensor value: ");
+    Serial.println(middleSensorValue);
+    Serial.print("Right sensor value: ");
+    Serial.println(rightSensorValue);
+    Serial.print("Left sensor value: ");
+    Serial.println(leftSensorValue);
+
+    if (middleSensorValue > 890 || leftSensorValue > 890 || rightSensorValue > 890) {
         run_bwd();
-    }
-    else 
-    {
+        delay(1000);
+        run_lft();
+        delay(1000);
+        run_stop();
+        Serial.println("Black line detected");
+    } else {
         run_fwd();
+        Serial.println("No black line detected");
     }
 }
 
-void ultrasonicSensorPoll(int trigPin, int echoPin, bool turnLeft) 
+void checkObj(int trigPin, int echoPin, bool turnLeft)
 {
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
@@ -113,31 +130,36 @@ void ultrasonicSensorPoll(int trigPin, int echoPin, bool turnLeft)
   long duration = pulseIn(echoPin, HIGH);
   int distance = duration * 0.034 / 2;
 
-  if (distance < 30)
+  
+  if (distance < 15)
   { 
     if (turnLeft) 
     {
-      run_lft(); 
+      Serial.println("Right Sensor: Object Detected");
+      run_stop();
+      delay(1000);
+      run_lft();
+      delay(1000);
+      run_fwd();
     } 
     else 
     {
-      run_rgt(); 
+      Serial.println("Left Sensor: Object Detected");
+      run_stop();
+      delay(1000);
+      run_rgt();
+      delay(1000);
+      run_fwd();
     }
   } 
-  else 
+  else
   {
-    run_fwd(); 
+    run_fwd();
   }
 }
 
-void setup() 
-{
-  Serial.begin(9600);
-  Timer.attachInterrupt(linesensorPoll).setFrequency(20).start();
-  Timer1.attachInterrupt([] { ultrasonicSensorPoll(trigPinLeft, echoPinLeft, false); }).setFrequency(10).start(); 
-  Timer2.attachInterrupt([] { ultrasonicSensorPoll(trigPinRight, echoPinRight, true); }).setFrequency(10).start(); 
-}
-
 void loop() {
-  
+  //timer.run(250);
+  timer2.run(250);
+  timer3.run(250);
 }
