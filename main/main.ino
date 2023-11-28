@@ -1,5 +1,6 @@
 #include "Simpletimer.h"
 #include "CytronMotorDriver.h"
+#include <cstdlib>
 // Define statements for the motor driver
 // Todo: Change the pin numbers 
 #define MiddleLineFollower A7
@@ -11,14 +12,17 @@
 #define trigPinLeft 12
 #define echoPinLeft 11
 
+
+
+
 CytronMD motor(PWM_DIR, 2, 9);
 CytronMD motor3(PWM_DIR, 5, 6); 
 CytronMD motor2(PWM_DIR, 4, 3);
 CytronMD motor4(PWM_DIR, 8, 7);
 
-Simpletimer timer{};
-Simpletimer timer2{};
-Simpletimer timer3{};
+Simpletimer lineTimer{};
+Simpletimer rightUSTimer{};
+Simpletimer leftUSTimer{};
 
 void setup() {
 
@@ -32,19 +36,9 @@ void setup() {
   pinMode(echoPinRight, INPUT);
   Serial.begin(74880);
 
-  timer.register_callback(checkBlackLine);
-  timer2.register_callback([]() { checkObj(trigPinLeft, echoPinLeft, false); });
-  timer3.register_callback([]() { checkObj(trigPinRight, echoPinRight, true); });
-}
-
-
-
-void mock_runbwd(){
-  Serial.println("Backward");
-}
-
-void mock_runfwd(){
-  Serial.println("Forward");
+  lineTimer.register_callback(checkBlackLine);
+  rightUSTimer.register_callback([]() { checkObj(trigPinLeft, echoPinLeft, false); });
+  leftUSTimer.register_callback([]() { checkObj(trigPinRight, echoPinRight, true); });
 }
 
 
@@ -95,7 +89,6 @@ void checkBlackLine() {
     int middleSensorValue = analogRead(MiddleLineFollower);
     int rightSensorValue = analogRead(RightLineFollower);
     int leftSensorValue = analogRead(LeftLineFollower);
-    //blackLineDetected = (middleSensorValue > 1500); // adjust the threshold as needed
 
      // Print out the sensor values
     Serial.print("Middle sensor value: ");
@@ -105,16 +98,28 @@ void checkBlackLine() {
     Serial.print("Left sensor value: ");
     Serial.println(leftSensorValue);
 
-    if (middleSensorValue > 890 || leftSensorValue > 890 || rightSensorValue > 890) {
-        run_bwd();
-        delay(1000);
+    if ((middleSensorValue > 890 && leftSensorValue > 890) || (middleSensorValue > 890 && rightSensorValue > 890)) 
+    {
+      int randomNum = rand() % 2;
+      if(randomNum == 0)
+      {
         run_lft();
         delay(1000);
         run_stop();
-        Serial.println("Black line detected");
-    } else {
-        run_fwd();
-        Serial.println("No black line detected");
+        Serial.println("LEFT Black line detected");
+      }
+      else
+      {
+        run_rgt();
+        delay(1000);
+        run_stop();
+        Serial.println("RIGHT Black line detected");
+      }
+    } 
+    else 
+    {
+      //run_fwd();
+      Serial.println("No black line detected");
     }
 }
 
@@ -135,6 +140,7 @@ void checkObj(int trigPin, int echoPin, bool turnLeft)
   { 
     if (turnLeft) 
     {
+
       Serial.println("Right Sensor: Object Detected");
       run_stop();
       delay(1000);
@@ -159,7 +165,7 @@ void checkObj(int trigPin, int echoPin, bool turnLeft)
 }
 
 void loop() {
-  //timer.run(250);
-  timer2.run(250);
-  timer3.run(250);
+  lineTimer.run(250);
+  rightUSTimer.run(250);
+  leftUSTimer.run(250);
 }
