@@ -12,9 +12,7 @@
 #define trigPinLeft 12
 #define echoPinLeft 11
 
-#define IRpin 40
-
-const int blackLineThreshold = 900;
+const int blackLineThreshold = 1000;
 
 CytronMD motor(PWM_DIR, 2, 9);
 CytronMD motor3(PWM_DIR, 5, 6); 
@@ -24,11 +22,9 @@ CytronMD motor4(PWM_DIR, 8, 7);
 Simpletimer lineTimer{};
 Simpletimer rightUSTimer{};
 Simpletimer leftUSTimer{};
-Simpletimer IRtimer{};
 
-volatile int middleSensorValue;
-volatile int rightSensorValue;
-volatile int leftSensorValue;
+
+
 
 void run_fwd()
 {
@@ -72,13 +68,11 @@ void run_rgt()
   Serial.println("Right\n");
 }
 
-bool flag = false;
-
 void checkBlackLine() {
-    middleSensorValue = analogRead(MiddleLineFollower);
-    rightSensorValue = analogRead(RightLineFollower);
-    leftSensorValue = analogRead(LeftLineFollower);
-    //int counter = 0;
+    volatile int middleSensorValue = analogRead(MiddleLineFollower);
+    volatile int rightSensorValue = analogRead(RightLineFollower);
+    volatile int leftSensorValue = analogRead(LeftLineFollower);
+    int counter = 0;
 
      // Print out the sensor values
     Serial.print("Middle sensor value: ");
@@ -90,17 +84,23 @@ void checkBlackLine() {
     Serial.print("Left sensor value: ");
     Serial.println(leftSensorValue);
 
-    if ((middleSensorValue > blackLineThreshold  || rightSensorValue > blackLineThreshold || leftSensorValue > blackLineThreshold) && (flag == false)){
-      flag == true;
-      run_bwd();
-      delay(1000);
-      run_lft();
-      delay(1000);
-    }
+     if (middleSensorValue > blackLineThreshold && leftSensorValue > blackLineThreshold || rightSensorValue > blackLineThreshold && middleSensorValue > blackLineThreshold) {
+        run_stop();
+        Serial.println("Black line detected");
+        run_bwd();
+        delay(400);
+        run_lft();
+        delay(700);
 
-    run_fwd();
-    flag == false;
-  
+        middleSensorValue = 0;
+        rightSensorValue = 0;
+        leftSensorValue = 0;
+        
+    } else {
+        run_fwd();
+        Serial.println("No black line detected");
+    }
+    counter++;
 }
 
 
@@ -144,51 +144,28 @@ void checkObj(int trigPin, int echoPin, bool turnLeft)
   }
 }
 
-void checkIR()
-{
-  int val = digitalRead(IRpin);
-  if (val == LOW)
-  {
-    Serial.println("+++++++++++++++++IR Sensor: Object Detected++++++++++++++++++++++");
-    run_stop();
-    delay(100);
-    run_bwd();
-    delay(200);
-    run_lft();
-    delay(1000);
-  }
-  else
-  {
-    run_fwd();
-  }
-}
-
 void setup() {
 
-    pinMode(MiddleLineFollower, INPUT);
-    pinMode(RightLineFollower, INPUT);
-    pinMode(LeftLineFollower, INPUT);
+  pinMode(MiddleLineFollower, INPUT);
+  pinMode(RightLineFollower, INPUT);
+  pinMode(LeftLineFollower, INPUT);
 
-    pinMode(trigPinLeft, OUTPUT);
-    pinMode(echoPinLeft, INPUT);
-    pinMode(trigPinRight, OUTPUT);
-    pinMode(echoPinRight, INPUT);
+  pinMode(trigPinLeft, OUTPUT);
+  pinMode(echoPinLeft, INPUT);
+  pinMode(trigPinRight, OUTPUT);
+  pinMode(echoPinRight, INPUT);
 
-    pinMode(IRpin, INPUT);
+  pinMode(13, OUTPUT);
 
-
-    Serial.begin(9600);
+  Serial.begin(9600);
 
   lineTimer.register_callback(checkBlackLine);
   rightUSTimer.register_callback([]() { checkObj(trigPinLeft, echoPinLeft, false); });
   leftUSTimer.register_callback([]() { checkObj(trigPinRight, echoPinRight, true); });
-  IRtimer.register_callback(checkIR);
 }
 
 void loop() {
-  lineTimer.run(150);
+  // lineTimer.run(100);
   rightUSTimer.run(150);
   leftUSTimer.run(150);
-  IRtimer.run(100);
-
 }
