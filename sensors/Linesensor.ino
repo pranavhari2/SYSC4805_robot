@@ -48,9 +48,9 @@ void run_rgt(){Serial.println("Right");}
 
 void sensorPoll() 
 {
-    int left = digitalRead(LeftLineFollower);
-    int middle = digitalRead(MiddleLineFollower);
-    int right = digitalRead(RightLineFollower);
+    int left = analogRead(LeftLineFollower);
+    int middle =analogRead(MiddleLineFollower);
+    int right = analogRead(RightLineFollower);
 
     Serial.print("Left: ");
     Serial.print(left);
@@ -59,18 +59,5 @@ void sensorPoll()
     Serial.print(" Right: ");
     Serial.println(right);
 
-    //Todo: Change the if statements to fit the line follower better
-    if ((left < whitelvl) && (middle < whitelvl) && (right > blacklvl)) 
-    {
-        run_lft();
-    }
-    else if ((left > blacklvl) && (middle < whitelvl) && (right > blacklvl)) {
-        run_rgt();
-    }
-    else if ((left > blacklvl) && (middle > blacklvl) && (right > blacklvl)) {
-        run_bwd();
-    }
-    else {
-        run_fwd();
-    }
+
 }
