@@ -17,9 +17,10 @@
 
 //Define statements for the motor driver
 //Todo: Change the pin numbers 
-#define MiddleLineFollower 30
-#define RightLineFollower 32
-#define LeftLineFollower 34
+#define MiddleLineFollower A7
+#define RightLineFollower A6
+#define LeftLineFollower A5
+
 
  
 //Define statements for the motor driver
